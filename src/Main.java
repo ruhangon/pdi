@@ -20,7 +20,8 @@ public class Main {
 		Color infosImg1;
 		Color infosImg2;
 		String menu = "Menu \n" + "1. Escolhe imagem 1 \n" + "2. Escolhe imagem 2 \n"
-				+ "3. Descobre RGB em uma coordenada de uma imagem \n" + "0. Sai do programa";
+				+ "3. Descobre RGB em uma coordenada de uma imagem \n" + "4. Filtros de cinza \n"
+				+ "0. Sai do programa";
 
 		int op = -1;
 
@@ -61,6 +62,8 @@ public class Main {
 							System.out.print("opção: ");
 							opImg = scan.nextInt();
 							scan.nextLine();
+							if ((opImg != 1) && (opImg != 2))
+								System.out.println("opção inválida");
 						} catch (InputMismatchException e) {
 							System.out.println("opção inválida");
 							scan.nextLine();
@@ -79,6 +82,33 @@ public class Main {
 						System.out.println("Red - Green - Blue");
 						System.out.println(
 								infosImg2.getRed() + " - " + infosImg2.getGreen() + " - " + infosImg2.getBlue());
+					}
+					break;
+
+				case 4:
+					// será aplicado na imagem 1 a princípio
+					System.out.println("Escolha um dos filtros de cinza");
+					int opFiltros = -1;
+					do {
+						try {
+							System.out.println("Escolha o filtro de cinza por média aritmética ou ponderada");
+							System.out.println("1. média aritmética, 2. média ponderada");
+							System.out.print("opção: ");
+							opFiltros = scan.nextInt();
+							scan.nextLine();
+							if ((opFiltros != 1) && (opFiltros != 2))
+								System.out.println("opção inválida");
+						} catch (InputMismatchException e) {
+							System.out.println("opção inválida");
+							scan.nextLine();
+							opFiltros = -1;
+						}
+					} while ((opFiltros != 1) && (opFiltros != 2));
+					if (opFiltros == 1) {
+						imagem.filtroCinzaAritmetico(minhaImagem1);
+					}
+					if (opFiltros == 2) {
+						System.out.println("a fazer");
 					}
 					break;
 

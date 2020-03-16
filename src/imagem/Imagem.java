@@ -2,9 +2,16 @@ package imagem;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+
+import javax.imageio.ImageIO;
+
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
 
 public class Imagem {
 	public String escolheImagem() {
@@ -66,6 +73,37 @@ public class Imagem {
 		 */
 		Color infosImg = new Color(minhaImagem.getRGB(xImg, yImg));
 		return infosImg;
+	}
+
+	public void filtroCinzaAritmetico(BufferedImage imagem) {
+		WritableImage imagemWI = getWI(imagem);
+		PixelWriter pw = imagemWI.getPixelWriter();
+		for (int x = 0; x < imagem.getWidth(); x++) {
+			for (int y = 0; y < imagem.getHeight(); y++) {
+				Color imagemRGB = new Color(imagem.getRGB(x, y));
+				int novaCor = ((imagemRGB.getRed() + imagemRGB.getGreen() + imagemRGB.getBlue()) / 3);
+
+			}
+		}
+		salvaImagem(imagemWI);
+	}
+
+	public WritableImage getWI(BufferedImage imagemBI) {
+		WritableImage imagemWI = null;
+		imagemWI = new WritableImage(imagemBI.getWidth(), imagemBI.getHeight());
+		PixelWriter pw = imagemWI.getPixelWriter();
+		for (int x = 0; x < imagemBI.getWidth(); x++) {
+			for (int y = 0; y < imagemBI.getHeight(); y++) {
+				pw.setArgb(x, y, imagemBI.getRGB(x, y));
+			}
+		}
+		return imagemWI;
+	}
+
+	public void salvaImagem(WritableImage imagemWI) {
+		File file = new File("teste.png");
+		RenderedImage renderedImage = SwingFXUtils.fromFXImage(imagemWI, null);
+		ImageIO.write(renderedImage, "png", file);
 	}
 
 }
