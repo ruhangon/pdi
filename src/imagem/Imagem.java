@@ -2,14 +2,15 @@ package imagem;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 
 import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 
@@ -77,15 +78,29 @@ public class Imagem {
 
 	public void filtroCinzaAritmetico(BufferedImage imagem) {
 		WritableImage imagemWI = getWI(imagem);
+		PixelReader pr = imagemWI.getPixelReader();
 		PixelWriter pw = imagemWI.getPixelWriter();
 		for (int x = 0; x < imagem.getWidth(); x++) {
 			for (int y = 0; y < imagem.getHeight(); y++) {
-				Color imagemRGB = new Color(imagem.getRGB(x, y));
-				int novaCor = ((imagemRGB.getRed() + imagemRGB.getGreen() + imagemRGB.getBlue()) / 3);
-
+				// Color imagemRGB = new Color(imagem.getRGB(x, y));
+				// int novaCor = ((imagemRGB.getRed() + imagemRGB.getGreen() +
+				// imagemRGB.getBlue()) / 3);
+				// imagemRGB.getRGB() retorna um inteiro de 32 bits com as informações do argb
+				int imagemArgb = pr.getArgb(x, y);
+				int alpha = (imagemArgb >> 24) & 0xFF;
+				int red = (imagemArgb >> 16) & 0xFF;
+				int green = (imagemArgb >> 8) & 0xFF;
+				int blue = imagemArgb & 0xFF;
+				int novaCorRgb = ((red + green + blue) / 3);
+				Color novaCor = new Color(novaCorRgb, novaCorRgb, novaCorRgb, alpha);
+				pw.setArgb(x, y, novaCor.getRGB());
 			}
 		}
-		salvaImagem(imagemWI);
+		try {
+			ImageIO.write(SwingFXUtils.fromFXImage(imagemWI, null), "png", new File("imgs/novocavalo.png"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public WritableImage getWI(BufferedImage imagemBI) {
@@ -98,12 +113,6 @@ public class Imagem {
 			}
 		}
 		return imagemWI;
-	}
-
-	public void salvaImagem(WritableImage imagemWI) {
-		File file = new File("teste.png");
-		RenderedImage renderedImage = SwingFXUtils.fromFXImage(imagemWI, null);
-		ImageIO.write(renderedImage, "png", file);
 	}
 
 }
