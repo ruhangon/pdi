@@ -19,6 +19,7 @@ public class Main {
 		BufferedImage minhaImagem2 = null;
 		Color infosImg1;
 		Color infosImg2;
+		int opImg = -1;
 		String menu = "Menu \n" + "1. Escolhe imagem 1 \n" + "2. Escolhe imagem 2 \n"
 				+ "3. Descobre RGB em uma coordenada de uma imagem \n" + "4. Filtros de cinza \n"
 				+ "0. Sai do programa";
@@ -54,7 +55,6 @@ public class Main {
 					break;
 
 				case 3:
-					int opImg = -1;
 					do {
 						try {
 							System.out.println("Escolha a imagem 1 ou a imagem 2");
@@ -86,7 +86,24 @@ public class Main {
 					break;
 
 				case 4:
-					// será aplicado na imagem 1 a princípio
+					// primeiro escolhe a imagem para aplicar o filtro
+					opImg = -1;
+					do {
+						try {
+							System.out.println("Escolha a imagem 1 ou a imagem 2");
+							System.out.println("a imagem já deve estar no programa");
+							System.out.print("opção: ");
+							opImg = scan.nextInt();
+							scan.nextLine();
+							if ((opImg != 1) && (opImg != 2))
+								System.out.println("opção inválida");
+						} catch (InputMismatchException e) {
+							System.out.println("opção inválida");
+							scan.nextLine();
+							opImg = -1;
+						}
+					} while ((opImg != 1) && (opImg != 2));
+					// escolhe qual filtro de cinza aplicar
 					System.out.println("Escolha um dos filtros de cinza");
 					int opFiltros = -1;
 					do {
@@ -104,11 +121,142 @@ public class Main {
 							opFiltros = -1;
 						}
 					} while ((opFiltros != 1) && (opFiltros != 2));
-					if (opFiltros == 1) {
-						imagem.filtroCinzaAritmetico(minhaImagem1);
+					// de acordo com a imagem aplica o filtro pedido
+					if (opImg == 1) {
+						if (opFiltros == 1) {
+							imagem.filtroCinzaAritmetico(minhaImagem1);
+						}
+						if (opFiltros == 2) {
+							int perc1;
+							int perc2;
+							int perc3;
+							int soma = 0; // soma dos percentuais pedidos abaixo precisa dar 100
+							// abaixo pede os 3 percentuais
+							do {
+								perc1 = -1;
+								perc2 = -1;
+								perc3 = -1;
+								// primeiro percentual
+								do {
+									try {
+										System.out.println("Digite o primeiro percentual");
+										System.out.print("percentual: ");
+										perc1 = scan.nextInt();
+										scan.nextLine();
+										if ((perc1 < 0) || (perc1 > 100))
+											System.out.println("opção inválida");
+									} catch (InputMismatchException e) {
+										System.out.println("opção inválida");
+										scan.nextLine();
+										perc1 = -1;
+									}
+								} while ((perc1 < 0) || (perc1 > 100));
+								soma += perc1;
+								// segundo percentual
+								do {
+									try {
+										System.out.println("Digite o segundo percentual");
+										System.out.print("percentual: ");
+										perc2 = scan.nextInt();
+										scan.nextLine();
+										if ((perc2 < 0) || (perc2 > 100))
+											System.out.println("opção inválida");
+									} catch (InputMismatchException e) {
+										System.out.println("opção inválida");
+										scan.nextLine();
+										perc2 = -1;
+									}
+								} while ((perc2 < 0) || (perc2 > 100));
+								soma += perc2;
+								// terceiro percentual
+								do {
+									try {
+										System.out.println("Digite o terceiro percentual");
+										System.out.print("percentual: ");
+										perc3 = scan.nextInt();
+										scan.nextLine();
+										if ((perc3 < 0) || (perc3 > 100))
+											System.out.println("opção inválida");
+									} catch (InputMismatchException e) {
+										System.out.println("opção inválida");
+										scan.nextLine();
+										perc3 = -1;
+									}
+								} while ((perc3 < 0) || (perc3 > 100));
+								soma += perc3;
+								if (soma != 100)
+									System.out.println("a soma não deu 100, faça novamente");
+							} while (soma != 100);
+							imagem.filtroCinzaPonderado(minhaImagem1, perc1, perc2, perc3);
+						}
 					}
-					if (opFiltros == 2) {
-						System.out.println("a fazer");
+					if (opImg == 2) {
+						if (opFiltros == 1) {
+							imagem.filtroCinzaAritmetico(minhaImagem2);
+						}
+						if (opFiltros == 2) {
+							int perc1;
+							int perc2;
+							int perc3;
+							int soma = 0; // soma dos percentuais pedidos abaixo precisa dar 100
+							// abaixo pede os 3 percentuais
+							do {
+								perc1 = -1;
+								perc2 = -1;
+								perc3 = -1;
+								// primeiro percentual
+								do {
+									try {
+										System.out.println("Digite o primeiro percentual");
+										System.out.print("percentual: ");
+										perc1 = scan.nextInt();
+										scan.nextLine();
+										if ((perc1 < 0) || (perc1 > 100))
+											System.out.println("opção inválida");
+									} catch (InputMismatchException e) {
+										System.out.println("opção inválida");
+										scan.nextLine();
+										perc1 = -1;
+									}
+								} while ((perc1 < 0) || (perc1 > 100));
+								soma += perc1;
+								// segundo percentual
+								do {
+									try {
+										System.out.println("Digite o segundo percentual");
+										System.out.print("percentual: ");
+										perc2 = scan.nextInt();
+										scan.nextLine();
+										if ((perc2 < 0) || (perc2 > 100))
+											System.out.println("opção inválida");
+									} catch (InputMismatchException e) {
+										System.out.println("opção inválida");
+										scan.nextLine();
+										perc2 = -1;
+									}
+								} while ((perc2 < 0) || (perc2 > 100));
+								soma += perc2;
+								// terceiro percentual
+								do {
+									try {
+										System.out.println("Digite o terceiro percentual");
+										System.out.print("percentual: ");
+										perc3 = scan.nextInt();
+										scan.nextLine();
+										if ((perc3 < 0) || (perc3 > 100))
+											System.out.println("opção inválida");
+									} catch (InputMismatchException e) {
+										System.out.println("opção inválida");
+										scan.nextLine();
+										perc3 = -1;
+									}
+								} while ((perc3 < 0) || (perc3 > 100));
+								soma += perc3;
+								if (soma != 100)
+									System.out.println("a soma não deu 100, faça novamente");
+							} while (soma != 100);
+							imagem.filtroCinzaPonderado(minhaImagem2, perc1, perc2, perc3);
+						}
 					}
 					break;
 

@@ -97,10 +97,38 @@ public class Imagem {
 			}
 		}
 		try {
-			ImageIO.write(SwingFXUtils.fromFXImage(imagemWI, null), "png", new File("imgs/novocavalo.png"));
+			ImageIO.write(SwingFXUtils.fromFXImage(imagemWI, null), "png", new File("imgs/filtros/novaimagemcomcinzaaritmetico.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		System.out.println("A imagem com filtro cinza aritmético foi salva na pasta imgs/filtros");
+	}
+
+	public void filtroCinzaPonderado(BufferedImage imagem, int perc1, int perc2, int perc3) {
+		WritableImage imagemWI = getWI(imagem);
+		PixelReader pr = imagemWI.getPixelReader();
+		PixelWriter pw = imagemWI.getPixelWriter();
+		for (int x = 0; x < imagem.getWidth(); x++) {
+			for (int y = 0; y < imagem.getHeight(); y++) {
+				int imagemArgb = pr.getArgb(x, y);
+				int alpha = (imagemArgb >> 24) & 0xFF;
+				int red = (imagemArgb >> 16) & 0xFF;
+				red=red*perc1;
+				int green = (imagemArgb >> 8) & 0xFF;
+				green=green*perc2;
+				int blue = imagemArgb & 0xFF;
+				blue=blue*perc3;
+				int novaCorRgb = ((red + green + blue) / 100);
+				Color novaCor = new Color(novaCorRgb, novaCorRgb, novaCorRgb, alpha);
+				pw.setArgb(x, y, novaCor.getRGB());
+			}
+		}
+		try {
+			ImageIO.write(SwingFXUtils.fromFXImage(imagemWI, null), "png", new File("imgs/filtros/novaimagemcomcinzaponderado.png"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println("A imagem com filtro cinza ponderado foi salva na pasta imgs/filtros");
 	}
 
 	public WritableImage getWI(BufferedImage imagemBI) {
