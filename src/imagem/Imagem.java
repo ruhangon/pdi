@@ -97,7 +97,8 @@ public class Imagem {
 			}
 		}
 		try {
-			ImageIO.write(SwingFXUtils.fromFXImage(imagemWI, null), "png", new File("imgs/filtros/novaimagemcomcinzaaritmetico.png"));
+			ImageIO.write(SwingFXUtils.fromFXImage(imagemWI, null), "png",
+					new File("imgs/filtros/novaimagemcomcinzaaritmetico.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -113,22 +114,129 @@ public class Imagem {
 				int imagemArgb = pr.getArgb(x, y);
 				int alpha = (imagemArgb >> 24) & 0xFF;
 				int red = (imagemArgb >> 16) & 0xFF;
-				red=red*perc1;
+				red = red * perc1;
 				int green = (imagemArgb >> 8) & 0xFF;
-				green=green*perc2;
+				green = green * perc2;
 				int blue = imagemArgb & 0xFF;
-				blue=blue*perc3;
+				blue = blue * perc3;
 				int novaCorRgb = ((red + green + blue) / 100);
 				Color novaCor = new Color(novaCorRgb, novaCorRgb, novaCorRgb, alpha);
 				pw.setArgb(x, y, novaCor.getRGB());
 			}
 		}
 		try {
-			ImageIO.write(SwingFXUtils.fromFXImage(imagemWI, null), "png", new File("imgs/filtros/novaimagemcomcinzaponderado.png"));
+			ImageIO.write(SwingFXUtils.fromFXImage(imagemWI, null), "png",
+					new File("imgs/filtros/novaimagemcomcinzaponderado.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		System.out.println("A imagem com filtro cinza ponderado foi salva na pasta imgs/filtros");
+	}
+
+	public void filtroParaLimiarizacao(BufferedImage imagem, int limiar, String caminho) {
+		Scanner scan = new Scanner(System.in);
+		WritableImage imagemWI = getWI(imagem);
+		PixelReader pr = imagemWI.getPixelReader();
+		PixelWriter pw = imagemWI.getPixelWriter();
+		int opRgb = 0; // usado para descobrir em qual canal será feito a binarização
+		do {
+			try {
+				System.out.println("Escolha em qual canal será feita a linearização");
+				System.out.println("1. R, 2. G, 3. B");
+				System.out.print("canal: ");
+				opRgb = scan.nextInt();
+				scan.nextLine();
+				if ((opRgb < 1) || (opRgb > 3))
+					System.out.println("opção inválida");
+			} catch (InputMismatchException e) {
+				System.out.println("opção inválida");
+				scan.nextLine();
+				opRgb = 0;
+			}
+		} while ((opRgb < 1) || (opRgb > 3));
+		// agora passa pela matriz de RGB da imagem para alterar os pixels do canal
+		// escolhido
+		for (int x = 0; x < imagem.getWidth(); x++) {
+			for (int y = 0; y < imagem.getHeight(); y++) {
+				int imagemArgb = pr.getArgb(x, y);
+				int alpha = (imagemArgb >> 24) & 0xFF;
+				int red = (imagemArgb >> 16) & 0xFF;
+				int green = (imagemArgb >> 8) & 0xFF;
+				int blue = imagemArgb & 0xFF;
+				// se opRgb for 1 altera o red
+				if (opRgb == 1) {
+					if (limiar > red)
+						red = 0;
+					if (limiar < red)
+						red = 255;
+					Color novaCor = new Color(red, green, blue, alpha);
+					pw.setArgb(x, y, novaCor.getRGB());
+				}
+				// se opRgb for 2 altera o green
+				if (opRgb == 2) {
+					if (limiar > green)
+						green = 0;
+					if (limiar < green)
+						green = 255;
+					Color novaCor = new Color(red, green, blue, alpha);
+					pw.setArgb(x, y, novaCor.getRGB());
+				}
+				// se opRgb for 3 altera o blue
+				if (opRgb == 3) {
+					if (limiar > blue)
+						blue = 0;
+					if (limiar < blue)
+						blue = 255;
+					Color novaCor = new Color(red, green, blue, alpha);
+					pw.setArgb(x, y, novaCor.getRGB());
+				}
+			}
+		}
+		// descobre o tipo da imagem para poder salvar ela
+		String tipoImg = retornaExtensao(caminho);
+		// cria o caminho com o nome do arquivo
+		String nomeDoArquivo = "imgs/filtros/novaimagemcomfiltrodelimiarizacao.";
+		nomeDoArquivo = nomeDoArquivo.concat(tipoImg);
+		// salva a nova imagem na pasta filtros
+		try {
+			ImageIO.write(SwingFXUtils.fromFXImage(imagemWI, null), tipoImg, new File(nomeDoArquivo));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println("A imagem com filtro de limiarização foi salva na pasta imgs/filtros");
+	}
+
+	// método para aplicar filtro de negativa
+	public void filtroDeNegativa(BufferedImage imagem, String caminho) {
+		WritableImage imagemWI = getWI(imagem);
+		PixelReader pr = imagemWI.getPixelReader();
+		PixelWriter pw = imagemWI.getPixelWriter();
+		for (int x = 0; x < imagem.getWidth(); x++) {
+			for (int y = 0; y < imagem.getHeight(); y++) {
+				int imagemArgb = pr.getArgb(x, y);
+				int alpha = (imagemArgb >> 24) & 0xFF;
+				int red = (imagemArgb >> 16) & 0xFF;
+				red = 255 - red;
+				int green = (imagemArgb >> 8) & 0xFF;
+				green = 255 - green;
+				int blue = imagemArgb & 0xFF;
+				blue = 255 - blue;
+				Color novaCor = new Color(red, green, blue, alpha);
+				pw.setArgb(x, y, novaCor.getRGB());
+			}
+		}
+		// descobre o tipo da imagem para poder salvar ela
+		String tipoImg = retornaExtensao(caminho);
+		// cria o caminho com o nome do arquivo
+		String nomeDoArquivo = "imgs/filtros/novaimagemcomfiltrodenegativa.";
+		nomeDoArquivo = nomeDoArquivo.concat(tipoImg);
+		// salva a nova imagem na pasta filtros
+		try {
+			ImageIO.write(SwingFXUtils.fromFXImage(imagemWI, null), tipoImg, new File(nomeDoArquivo));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println("A imagem com filtro de negativa foi salva na pasta imgs/filtros");
 	}
 
 	public WritableImage getWI(BufferedImage imagemBI) {
@@ -141,6 +249,19 @@ public class Imagem {
 			}
 		}
 		return imagemWI;
+	}
+
+	// retorna a extensão do arquivo, exemplo .jpg
+	public String retornaExtensao(String caminho) {
+		int localPonto = -1; // pega a posição do ponto na palavra
+		for (int i = 0; i < caminho.length(); i++) {
+			if (caminho.charAt(i) == ('.')) {
+				localPonto = i + 1;
+				break;
+			}
+		}
+		String extensao = caminho.substring(localPonto, caminho.length());
+		return extensao;
 	}
 
 }

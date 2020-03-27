@@ -10,10 +10,31 @@ import javax.imageio.ImageIO;
 import imagem.Imagem;
 
 public class Main {
+
+	public static int escolheImagem(Scanner scan) {
+		int opImg = -1;
+		do {
+			try {
+				System.out.println("Escolha uma imagem para aplicar o filtro (1 ou 2)");
+				System.out.print("imagem: ");
+				opImg = scan.nextInt();
+				scan.nextLine();
+				if ((opImg < 1) || (opImg > 2))
+					System.out.println("opção inválida");
+			} catch (InputMismatchException e) {
+				System.out.println("opção inválida");
+				scan.nextLine();
+				opImg = -1;
+			}
+		} while ((opImg < 1) || (opImg > 2));
+		return opImg;
+	}
+
 	public static void main(String[] args) {
 		System.out.println("    Processamento digital de imagens    \n");
 		Scanner scan = new Scanner(System.in);
-		String caminhoImg = " ";
+		String caminhoImg1 = " ";
+		String caminhoImg2 = " ";
 		Imagem imagem = new Imagem();
 		BufferedImage minhaImagem1 = null;
 		BufferedImage minhaImagem2 = null;
@@ -22,7 +43,7 @@ public class Main {
 		int opImg = -1;
 		String menu = "Menu \n" + "1. Escolhe imagem 1 \n" + "2. Escolhe imagem 2 \n"
 				+ "3. Descobre RGB em uma coordenada de uma imagem \n" + "4. Filtros de cinza \n"
-				+ "0. Sai do programa";
+				+ "5. Filtro de limiarização \n" + "6. Filtro de negativa \n" + "0. Sai do programa";
 
 		int op = -1;
 
@@ -36,9 +57,9 @@ public class Main {
 				switch (op) {
 				case 1:
 					System.out.println("Imagem 1");
-					caminhoImg = imagem.escolheImagem();
+					caminhoImg1 = imagem.escolheImagem();
 					try {
-						minhaImagem1 = ImageIO.read(new File(caminhoImg));
+						minhaImagem1 = ImageIO.read(new File(caminhoImg1));
 					} catch (IOException e) {
 						System.out.println("Erro com BufferedImage");
 					}
@@ -46,9 +67,9 @@ public class Main {
 
 				case 2:
 					System.out.println("Imagem 2");
-					caminhoImg = imagem.escolheImagem();
+					caminhoImg2 = imagem.escolheImagem();
 					try {
-						minhaImagem2 = ImageIO.read(new File(caminhoImg));
+						minhaImagem2 = ImageIO.read(new File(caminhoImg2));
 					} catch (IOException e) {
 						System.out.println("Erro com BufferedImage");
 					}
@@ -258,6 +279,39 @@ public class Main {
 							imagem.filtroCinzaPonderado(minhaImagem2, perc1, perc2, perc3);
 						}
 					}
+					break;
+
+				case 5:
+					int limiar = -1;
+					do {
+						try {
+							System.out.println("Digite o limiar");
+							System.out.print("limiar: ");
+							limiar = scan.nextInt();
+							if ((limiar < 0) || (limiar > 255))
+								System.out.println("opção inválida");
+							scan.nextLine();
+						} catch (InputMismatchException e) {
+							System.out.println("opção inválida");
+							scan.nextLine();
+							limiar = -1;
+						}
+					} while ((limiar < 0) || (limiar > 255));
+					opImg = -1;
+					opImg = escolheImagem(scan);
+					if (opImg == 1)
+						imagem.filtroParaLimiarizacao(minhaImagem1, limiar, caminhoImg1);
+					if (opImg == 2)
+						imagem.filtroParaLimiarizacao(minhaImagem2, limiar, caminhoImg2);
+					break;
+
+				case 6:
+					opImg = -1;
+					opImg = escolheImagem(scan);
+					if (opImg == 1)
+						imagem.filtroDeNegativa(minhaImagem1, caminhoImg1);
+					if (opImg == 2)
+						imagem.filtroDeNegativa(minhaImagem2, caminhoImg2);
 					break;
 
 				case 0:
