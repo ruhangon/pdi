@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -239,6 +241,299 @@ public class Imagem {
 		System.out.println("A imagem com filtro de negativa foi salva na pasta imgs/filtros");
 	}
 
+	// método para aplicar filtro de eliminação de ruídos por mediana
+	public void filtroDeEliminacaoDeRuidos(BufferedImage imagem, String caminho) {
+		Scanner scan = new Scanner(System.in);
+		WritableImage imagemWI = getWI(imagem);
+		PixelReader pr = imagemWI.getPixelReader();
+		PixelWriter pw = imagemWI.getPixelWriter();
+		// escolhe qual vizinhança será usada (em x, em cruz ou 3 por 3 )
+		int opViz = -1;
+		do {
+			try {
+				System.out
+						.println("Escolha qual vizinhança será aplicada para realizar o filtro de eliminação de ruído");
+				System.out.println("1. Vizinhança em x, 2. Vizinhança em cruz, 3. Vizinhança 3 por 3");
+				System.out.print("resposta: ");
+				opViz = scan.nextInt();
+				scan.nextLine();
+				if ((opViz < 1) || (opViz > 3))
+					System.out.println("opção inválida");
+			} catch (InputMismatchException e) {
+				System.out.println("opção inválida");
+				scan.nextLine();
+				opViz = -1;
+			}
+		} while ((opViz < 1) || (opViz > 3));
+		// se escolheu a opção 1, então aplica o filtro com vizinhança em x
+		if (opViz == 1) {
+			// passa pela matriz sem analisar os pixels das bordas da imagem
+			for (int x = 1; x < (imagem.getWidth() - 1); x++) {
+				for (int y = 1; y < (imagem.getHeight() - 1); y++) {
+					int imagemArgb = pr.getArgb(x, y);
+					int alpha = (imagemArgb >> 24) & 0xFF;
+					int red = (imagemArgb >> 16) & 0xFF;
+					int green = (imagemArgb >> 8) & 0xFF;
+					int blue = imagemArgb & 0xFF;
+					Pixel pixel = new Pixel(alpha, red, green, blue);
+					pixel = vizinhancaEmX(imagemWI, pixel, x, y);
+					Color novaCor = calculaMediana(pixel);
+					pw.setArgb(x, y, novaCor.getRGB());
+				}
+			}
+			// salva a imagem
+			// descobre o tipo da imagem para poder salvar ela
+			String tipoImg = retornaExtensao(caminho);
+			// cria o caminho com o nome do arquivo
+			String nomeDoArquivo = "imgs/filtros/novaimagemsemruidosporx.";
+			nomeDoArquivo = nomeDoArquivo.concat(tipoImg);
+			// salva a nova imagem na pasta filtros
+			try {
+				ImageIO.write(SwingFXUtils.fromFXImage(imagemWI, null), tipoImg, new File(nomeDoArquivo));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			System.out.println("A imagem com filtro de eliminação de ruído por X foi salva na pasta imgs/filtros");
+		}
+		// se escolheu a opção 2, então aplica o filtro com vizinhança em cruz
+		if (opViz == 2) {
+			// passa pela matriz sem analisar os pixels das bordas da imagem
+			for (int x = 1; x < (imagem.getWidth() - 1); x++) {
+				for (int y = 1; y < (imagem.getHeight() - 1); y++) {
+					int imagemArgb = pr.getArgb(x, y);
+					int alpha = (imagemArgb >> 24) & 0xFF;
+					int red = (imagemArgb >> 16) & 0xFF;
+					int green = (imagemArgb >> 8) & 0xFF;
+					int blue = imagemArgb & 0xFF;
+					Pixel pixel = new Pixel(alpha, red, green, blue);
+					pixel = vizinhancaEmCruz(imagemWI, pixel, x, y);
+					Color novaCor = calculaMediana(pixel);
+					pw.setArgb(x, y, novaCor.getRGB());
+				}
+			}
+			// salva a imagem
+			// descobre o tipo da imagem para poder salvar ela
+			String tipoImg = retornaExtensao(caminho);
+			// cria o caminho com o nome do arquivo
+			String nomeDoArquivo = "imgs/filtros/novaimagemsemruidosporcruz.";
+			nomeDoArquivo = nomeDoArquivo.concat(tipoImg);
+			// salva a nova imagem na pasta filtros
+			try {
+				ImageIO.write(SwingFXUtils.fromFXImage(imagemWI, null), tipoImg, new File(nomeDoArquivo));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			System.out.println("A imagem com filtro de eliminação de ruído por cruz foi salva na pasta imgs/filtros");
+		}
+		// se escolheu a opção 3, então aplica o filtro com vizinhança 3 por 3
+		if (opViz == 3) {
+			// passa pela matriz sem analisar os pixels das bordas da imagem
+			for (int x = 1; x < (imagem.getWidth() - 1); x++) {
+				for (int y = 1; y < (imagem.getHeight() - 1); y++) {
+					int imagemArgb = pr.getArgb(x, y);
+					int alpha = (imagemArgb >> 24) & 0xFF;
+					int red = (imagemArgb >> 16) & 0xFF;
+					int green = (imagemArgb >> 8) & 0xFF;
+					int blue = imagemArgb & 0xFF;
+					Pixel pixel = new Pixel(alpha, red, green, blue);
+					pixel = vizinhancaTresPorTres(imagemWI, pixel, x, y);
+					Color novaCor = calculaMediana(pixel);
+					pw.setArgb(x, y, novaCor.getRGB());
+				}
+			}
+			// salva a imagem
+			// descobre o tipo da imagem para poder salvar ela
+			String tipoImg = retornaExtensao(caminho);
+			// cria o caminho com o nome do arquivo
+			String nomeDoArquivo = "imgs/filtros/novaimagemsemruidostresportres.";
+			nomeDoArquivo = nomeDoArquivo.concat(tipoImg);
+			// salva a nova imagem na pasta filtros
+			try {
+				ImageIO.write(SwingFXUtils.fromFXImage(imagemWI, null), tipoImg, new File(nomeDoArquivo));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			System.out.println("A imagem com filtro de eliminação de ruído três por três foi salva na pasta imgs/filtros");
+		}
+	}
+
+	// retorna o pixel em questão com os seus vizinhos preenchidos
+	public Pixel vizinhancaEmX(WritableImage imagem, Pixel pixel, int x, int y) {
+		PixelReader pr = imagem.getPixelReader();
+		ArrayList<Pixel> pixelsViz = new ArrayList<Pixel>();
+		int vizinhoArgb = pr.getArgb((x - 1), (y - 1));
+		int alphaViz = (vizinhoArgb >> 24) & 0xFF;
+		int redViz = (vizinhoArgb >> 16) & 0xFF;
+		int greenViz = (vizinhoArgb >> 8) & 0xFF;
+		int blueViz = vizinhoArgb & 0xFF;
+		Pixel vizinho1 = new Pixel(alphaViz, redViz, greenViz, blueViz);
+		pixelsViz.add(vizinho1);
+		vizinhoArgb = pr.getArgb((x + 1), (y - 1));
+		alphaViz = (vizinhoArgb >> 24) & 0xFF;
+		redViz = (vizinhoArgb >> 16) & 0xFF;
+		greenViz = (vizinhoArgb >> 8) & 0xFF;
+		blueViz = vizinhoArgb & 0xFF;
+		Pixel vizinho2 = new Pixel(alphaViz, redViz, greenViz, blueViz);
+		pixelsViz.add(vizinho2);
+		vizinhoArgb = pr.getArgb((x - 1), (y + 1));
+		alphaViz = (vizinhoArgb >> 24) & 0xFF;
+		redViz = (vizinhoArgb >> 16) & 0xFF;
+		greenViz = (vizinhoArgb >> 8) & 0xFF;
+		blueViz = vizinhoArgb & 0xFF;
+		Pixel vizinho3 = new Pixel(alphaViz, redViz, greenViz, blueViz);
+		pixelsViz.add(vizinho3);
+		vizinhoArgb = pr.getArgb((x + 1), (y + 1));
+		alphaViz = (vizinhoArgb >> 24) & 0xFF;
+		redViz = (vizinhoArgb >> 16) & 0xFF;
+		greenViz = (vizinhoArgb >> 8) & 0xFF;
+		blueViz = vizinhoArgb & 0xFF;
+		Pixel vizinho4 = new Pixel(alphaViz, redViz, greenViz, blueViz);
+		pixelsViz.add(vizinho4);
+		pixel.setVizinhos(pixelsViz);
+		return pixel;
+	}
+
+	// retorna o pixel em questão com os seus vizinhos preenchidos
+	public Pixel vizinhancaEmCruz(WritableImage imagem, Pixel pixel, int x, int y) {
+		PixelReader pr = imagem.getPixelReader();
+		ArrayList<Pixel> pixelsViz = new ArrayList<Pixel>();
+		int vizinhoArgb = pr.getArgb((x - 1), (y));
+		int alphaViz = (vizinhoArgb >> 24) & 0xFF;
+		int redViz = (vizinhoArgb >> 16) & 0xFF;
+		int greenViz = (vizinhoArgb >> 8) & 0xFF;
+		int blueViz = vizinhoArgb & 0xFF;
+		Pixel vizinho1 = new Pixel(alphaViz, redViz, greenViz, blueViz);
+		pixelsViz.add(vizinho1);
+		vizinhoArgb = pr.getArgb((x + 1), (y));
+		alphaViz = (vizinhoArgb >> 24) & 0xFF;
+		redViz = (vizinhoArgb >> 16) & 0xFF;
+		greenViz = (vizinhoArgb >> 8) & 0xFF;
+		blueViz = vizinhoArgb & 0xFF;
+		Pixel vizinho2 = new Pixel(alphaViz, redViz, greenViz, blueViz);
+		pixelsViz.add(vizinho2);
+		vizinhoArgb = pr.getArgb((x), (y + 1));
+		alphaViz = (vizinhoArgb >> 24) & 0xFF;
+		redViz = (vizinhoArgb >> 16) & 0xFF;
+		greenViz = (vizinhoArgb >> 8) & 0xFF;
+		blueViz = vizinhoArgb & 0xFF;
+		Pixel vizinho3 = new Pixel(alphaViz, redViz, greenViz, blueViz);
+		pixelsViz.add(vizinho3);
+		vizinhoArgb = pr.getArgb((x), (y - 1));
+		alphaViz = (vizinhoArgb >> 24) & 0xFF;
+		redViz = (vizinhoArgb >> 16) & 0xFF;
+		greenViz = (vizinhoArgb >> 8) & 0xFF;
+		blueViz = vizinhoArgb & 0xFF;
+		Pixel vizinho4 = new Pixel(alphaViz, redViz, greenViz, blueViz);
+		pixelsViz.add(vizinho4);
+		pixel.setVizinhos(pixelsViz);
+		return pixel;
+	}
+
+	// retorna o pixel em questão com os seus vizinhos preenchidos
+	public Pixel vizinhancaTresPorTres(WritableImage imagem, Pixel pixel, int x, int y) {
+		PixelReader pr = imagem.getPixelReader();
+		ArrayList<Pixel> pixelsViz = new ArrayList<Pixel>();
+		int vizinhoArgb = pr.getArgb((x - 1), (y - 1));
+		int alphaViz = (vizinhoArgb >> 24) & 0xFF;
+		int redViz = (vizinhoArgb >> 16) & 0xFF;
+		int greenViz = (vizinhoArgb >> 8) & 0xFF;
+		int blueViz = vizinhoArgb & 0xFF;
+		Pixel vizinho1 = new Pixel(alphaViz, redViz, greenViz, blueViz);
+		pixelsViz.add(vizinho1);
+		vizinhoArgb = pr.getArgb((x + 1), (y - 1));
+		alphaViz = (vizinhoArgb >> 24) & 0xFF;
+		redViz = (vizinhoArgb >> 16) & 0xFF;
+		greenViz = (vizinhoArgb >> 8) & 0xFF;
+		blueViz = vizinhoArgb & 0xFF;
+		Pixel vizinho2 = new Pixel(alphaViz, redViz, greenViz, blueViz);
+		pixelsViz.add(vizinho2);
+		vizinhoArgb = pr.getArgb((x - 1), (y + 1));
+		alphaViz = (vizinhoArgb >> 24) & 0xFF;
+		redViz = (vizinhoArgb >> 16) & 0xFF;
+		greenViz = (vizinhoArgb >> 8) & 0xFF;
+		blueViz = vizinhoArgb & 0xFF;
+		Pixel vizinho3 = new Pixel(alphaViz, redViz, greenViz, blueViz);
+		pixelsViz.add(vizinho3);
+		vizinhoArgb = pr.getArgb((x + 1), (y + 1));
+		alphaViz = (vizinhoArgb >> 24) & 0xFF;
+		redViz = (vizinhoArgb >> 16) & 0xFF;
+		greenViz = (vizinhoArgb >> 8) & 0xFF;
+		blueViz = vizinhoArgb & 0xFF;
+		Pixel vizinho4 = new Pixel(alphaViz, redViz, greenViz, blueViz);
+		pixelsViz.add(vizinho4);
+		vizinhoArgb = pr.getArgb((x - 1), (y));
+		alphaViz = (vizinhoArgb >> 24) & 0xFF;
+		redViz = (vizinhoArgb >> 16) & 0xFF;
+		greenViz = (vizinhoArgb >> 8) & 0xFF;
+		blueViz = vizinhoArgb & 0xFF;
+		Pixel vizinho5 = new Pixel(alphaViz, redViz, greenViz, blueViz);
+		pixelsViz.add(vizinho5);
+		vizinhoArgb = pr.getArgb((x + 1), (y));
+		alphaViz = (vizinhoArgb >> 24) & 0xFF;
+		redViz = (vizinhoArgb >> 16) & 0xFF;
+		greenViz = (vizinhoArgb >> 8) & 0xFF;
+		blueViz = vizinhoArgb & 0xFF;
+		Pixel vizinho6 = new Pixel(alphaViz, redViz, greenViz, blueViz);
+		pixelsViz.add(vizinho6);
+		vizinhoArgb = pr.getArgb((x), (y + 1));
+		alphaViz = (vizinhoArgb >> 24) & 0xFF;
+		redViz = (vizinhoArgb >> 16) & 0xFF;
+		greenViz = (vizinhoArgb >> 8) & 0xFF;
+		blueViz = vizinhoArgb & 0xFF;
+		Pixel vizinho7 = new Pixel(alphaViz, redViz, greenViz, blueViz);
+		pixelsViz.add(vizinho7);
+		vizinhoArgb = pr.getArgb((x), (y - 1));
+		alphaViz = (vizinhoArgb >> 24) & 0xFF;
+		redViz = (vizinhoArgb >> 16) & 0xFF;
+		greenViz = (vizinhoArgb >> 8) & 0xFF;
+		blueViz = vizinhoArgb & 0xFF;
+		Pixel vizinho8 = new Pixel(alphaViz, redViz, greenViz, blueViz);
+		pixelsViz.add(vizinho8);
+		pixel.setVizinhos(pixelsViz);
+		return pixel;
+	}
+
+	// calcula mediana dos canais para eliminar os ruídos
+	public Color calculaMediana(Pixel pixel) {
+		int novoRed = -1;
+		int novoGreen = -1;
+		int novoBlue = -1;
+		ArrayList<Integer> canaisRGB = new ArrayList<Integer>();
+		canaisRGB.add(pixel.getRed());
+		for (int i = 0; i < pixel.getVizinhos().size(); i++) {
+			canaisRGB.add(pixel.getVizinhos().get(i).getRed());
+		}
+		Collections.sort(canaisRGB);
+		if (canaisRGB.size() == 5)
+			novoRed = canaisRGB.get(2);
+		if (canaisRGB.size() == 9)
+			novoRed = canaisRGB.get(4);
+		canaisRGB.clear(); // depois de coletado o novo red limpa o arraylist
+		canaisRGB.add(pixel.getGreen());
+		for (int i = 0; i < pixel.getVizinhos().size(); i++) {
+			canaisRGB.add(pixel.getVizinhos().get(i).getGreen());
+		}
+		Collections.sort(canaisRGB);
+		if (canaisRGB.size() == 5)
+			novoGreen = canaisRGB.get(2);
+		if (canaisRGB.size() == 9)
+			novoGreen = canaisRGB.get(4);
+		canaisRGB.clear(); // depois de coletado o novo green limpa o arraylist
+		canaisRGB.add(pixel.getBlue());
+		for (int i = 0; i < pixel.getVizinhos().size(); i++) {
+			canaisRGB.add(pixel.getVizinhos().get(i).getBlue());
+		}
+		Collections.sort(canaisRGB);
+		if (canaisRGB.size() == 5)
+			novoBlue = canaisRGB.get(2);
+		if (canaisRGB.size() == 9)
+			novoBlue = canaisRGB.get(4);
+		canaisRGB.clear(); // depois de coletado o novo blue limpa o arraylist
+		Color novaCor = new Color(novoRed, novoGreen, novoBlue, pixel.getAlpha());
+		return novaCor;
+	}
+
+	// passa a imagem em buffer para uma WritableImage
 	public WritableImage getWI(BufferedImage imagemBI) {
 		WritableImage imagemWI = null;
 		imagemWI = new WritableImage(imagemBI.getWidth(), imagemBI.getHeight());

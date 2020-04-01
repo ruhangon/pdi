@@ -43,7 +43,8 @@ public class Main {
 		int opImg = -1;
 		String menu = "Menu \n" + "1. Escolhe imagem 1 \n" + "2. Escolhe imagem 2 \n"
 				+ "3. Descobre RGB em uma coordenada de uma imagem \n" + "4. Filtros de cinza \n"
-				+ "5. Filtro de limiarização \n" + "6. Filtro de negativa \n" + "0. Sai do programa";
+				+ "5. Filtro de limiarização \n" + "6. Filtro de negativa \n" + "7. Filtro de eliminação de ruídos \n"
+				+ "0. Sai do programa";
 
 		int op = -1;
 
@@ -312,6 +313,15 @@ public class Main {
 						imagem.filtroDeNegativa(minhaImagem1, caminhoImg1);
 					if (opImg == 2)
 						imagem.filtroDeNegativa(minhaImagem2, caminhoImg2);
+					break;
+
+				case 7:
+					opImg = -1;
+					opImg = escolheImagem(scan);
+					if (opImg == 1)
+						imagem.filtroDeEliminacaoDeRuidos(minhaImagem1, caminhoImg1);
+					if (opImg == 2)
+						imagem.filtroDeEliminacaoDeRuidos(minhaImagem2, caminhoImg2);
 					break;
 
 				case 0:
