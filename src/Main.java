@@ -15,7 +15,7 @@ public class Main {
 		int opImg = -1;
 		do {
 			try {
-				System.out.println("Escolha uma imagem para aplicar o filtro (1 ou 2)");
+				System.out.println("Escolha uma imagem (1 ou 2)");
 				System.out.print("imagem: ");
 				opImg = scan.nextInt();
 				scan.nextLine();
@@ -44,7 +44,7 @@ public class Main {
 		String menu = "Menu \n" + "1. Escolhe imagem 1 \n" + "2. Escolhe imagem 2 \n"
 				+ "3. Descobre RGB em uma coordenada de uma imagem \n" + "4. Filtros de cinza \n"
 				+ "5. Filtro de limiarização \n" + "6. Filtro de negativa \n" + "7. Filtro de eliminação de ruídos \n"
-				+ "0. Sai do programa";
+				+ "20. Mostra pixels de uma área passada \n" + "0. Sai do programa";
 
 		int op = -1;
 
@@ -322,6 +322,15 @@ public class Main {
 						imagem.filtroDeEliminacaoDeRuidos(minhaImagem1, caminhoImg1);
 					if (opImg == 2)
 						imagem.filtroDeEliminacaoDeRuidos(minhaImagem2, caminhoImg2);
+					break;
+
+				case 20:
+					opImg = -1;
+					opImg = escolheImagem(scan);
+					if (opImg == 1)
+						imagem.mostraPixels(minhaImagem1);
+					if (opImg == 2)
+						imagem.mostraPixels(minhaImagem2);
 					break;
 
 				case 0:

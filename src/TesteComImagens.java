@@ -8,6 +8,7 @@ import java.util.Scanner;
 import javax.imageio.ImageIO;
 
 import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 
@@ -17,7 +18,9 @@ public class TesteComImagens {
 		Scanner scan = new Scanner(System.in);
 		String caminhoImg = " ";
 		BufferedImage minhaImagem = null;
+		WritableImage imagemWI;
 		PixelWriter pw;
+		PixelReader pr;
 		boolean existeImg = false;
 		String menu = "1. Cria imagem simples na proporção escolhida \n2. Altera 4 pixels específicos da imagem no buffer \n3. Confere 1 pixel da imagem \n"
 				+ "4. Confere todos os pixels da imagem \n5. Confere largura x altura da imagem \n6. Carrega imagem para buffer \n0. Sai";
@@ -145,8 +148,9 @@ public class TesteComImagens {
 				case 2:
 					System.out.println("Altera 4 pixels específicos da imagem no buffer (irá virar preto)");
 					int n = 0;
-					WritableImage imagemWI = new WritableImage(minhaImagem.getWidth(), minhaImagem.getHeight());
+					imagemWI = new WritableImage(minhaImagem.getWidth(), minhaImagem.getHeight());
 					pw = imagemWI.getPixelWriter();
+					pr = imagemWI.getPixelReader();
 					for (int x = 0; x < minhaImagem.getWidth(); x++) {
 						for (int y = 0; y < minhaImagem.getHeight(); y++) {
 							pw.setArgb(x, y, minhaImagem.getRGB(x, y));
@@ -210,15 +214,23 @@ public class TesteComImagens {
 
 				case 4:
 					System.out.println("Confere todos os pixels da imagem");
+					imagemWI = new WritableImage(minhaImagem.getWidth(), minhaImagem.getHeight());
+					pw = imagemWI.getPixelWriter();
+					pr = imagemWI.getPixelReader();
+					for (int x = 0; x < minhaImagem.getWidth(); x++) {
+						for (int y = 0; y < minhaImagem.getHeight(); y++) {
+							pw.setArgb(x, y, minhaImagem.getRGB(x, y));
+						}
+					}
 					System.out.println("largura x altura: red - green - blue");
 					for (int x = 0; x < minhaImagem.getWidth(); x++) {
 						for (int y = 0; y < minhaImagem.getHeight(); y++) {
-							int imagemRGB = minhaImagem.getRGB(x, y);
+							int imagemRGB = pr.getArgb(x, y);
 							int r = (imagemRGB >> 16) & 0xFF;
 							int g = (imagemRGB >> 8) & 0xFF;
 							int b = imagemRGB & 0xFF;
-System.out.print(x +"x"+ y +": ");
-System.out.println(r +" - "+ g +" - "+ b);
+							System.out.print(x + "x" + y + ": ");
+							System.out.println(r + " - " + g + " - " + b);
 						}
 					}
 					System.out.println();

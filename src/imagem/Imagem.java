@@ -353,7 +353,8 @@ public class Imagem {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			System.out.println("A imagem com filtro de eliminação de ruído três por três foi salva na pasta imgs/filtros");
+			System.out.println(
+					"A imagem com filtro de eliminação de ruído três por três foi salva na pasta imgs/filtros");
 		}
 	}
 
@@ -557,6 +558,102 @@ public class Imagem {
 		}
 		String extensao = caminho.substring(localPonto, caminho.length());
 		return extensao;
+	}
+
+	public void mostraPixels(BufferedImage imagem) {
+		Scanner scan = new Scanner(System.in);
+		System.out.println("Mostra os pixels que estão dentro da marcação passada");
+		int larguraA = -1;
+		int alturaA = -1;
+		int larguraB = -1;
+		int alturaB = -1;
+		do {
+			try {
+				System.out.println("Escolha a largura do ponto inicial");
+				System.out.println("(0 até " + (imagem.getWidth() - 1) + ")");
+				System.out.print("largura A: ");
+				larguraA = scan.nextInt();
+				scan.nextLine();
+				if ((larguraA < 0) || (larguraA > (imagem.getWidth() - 1)))
+					System.out.println("opção inválida");
+			} catch (InputMismatchException e) {
+				System.out.println("opção inválida");
+				scan.nextLine();
+				larguraA = -1;
+			}
+		} while ((larguraA < 0) || (larguraA > (imagem.getWidth() - 1)));
+		do {
+			try {
+				System.out.println("Escolha a altura do ponto inicial");
+				System.out.println("(0 até " + (imagem.getHeight() - 1) + ")");
+				System.out.print("altura A: ");
+				alturaA = scan.nextInt();
+				scan.nextLine();
+				if ((alturaA < 0) || (alturaA > (imagem.getHeight() - 1)))
+					System.out.println("opção inválida");
+			} catch (InputMismatchException e) {
+				System.out.println("opção inválida");
+				scan.nextLine();
+				alturaA = -1;
+			}
+		} while ((alturaA < 0) || (alturaA > (imagem.getHeight() - 1)));
+		do {
+			try {
+				System.out.println("Escolha a largura do ponto final");
+				System.out.println("(0 até " + (imagem.getWidth() - 1) + ")");
+				System.out.print("largura B: ");
+				larguraB = scan.nextInt();
+				scan.nextLine();
+				if ((larguraB < 0) || (larguraB > (imagem.getWidth() - 1)))
+					System.out.println("opção inválida");
+			} catch (InputMismatchException e) {
+				System.out.println("opção inválida");
+				scan.nextLine();
+				larguraB = -1;
+			}
+		} while ((larguraB < 0) || (larguraB > (imagem.getWidth() - 1)));
+		do {
+			try {
+				System.out.println("Escolha a altura do ponto final");
+				System.out.println("(0 até " + (imagem.getHeight() - 1) + ")");
+				System.out.print("altura B: ");
+				alturaB = scan.nextInt();
+				scan.nextLine();
+				if ((alturaB < 0) || (alturaB > (imagem.getHeight() - 1)))
+					System.out.println("opção inválida");
+			} catch (InputMismatchException e) {
+				System.out.println("opção inválida");
+				scan.nextLine();
+				alturaB = -1;
+			}
+		} while ((alturaB < 0) || (alturaB > (imagem.getHeight() - 1)));
+		System.out.println("largura/altura");
+		System.out.println("Ponto inicial: " + (larguraA) + "/" + (alturaA));
+		System.out.println("Ponto final: " + (larguraB) + "/" + (alturaB));
+		// cuida para que a largura inicial e a altura inicial sempre sejam as menores
+		// feito para não dar problema na hora de percorrer os laços
+		int aux;
+		if (larguraB < larguraA) {
+			aux = larguraB;
+			larguraB = larguraA;
+			larguraA = aux;
+		}
+		if (alturaB < alturaA) {
+			aux = alturaB;
+			alturaB = alturaA;
+			alturaA = aux;
+		}
+		for (int x = larguraA; x <= larguraB; x++) {
+			for (int y = alturaA; y <= alturaB; y++) {
+				int imagemArgb=imagem.getRGB(x, y);
+				int alpha = (imagemArgb >> 24) & 0xFF;
+				int red = (imagemArgb >> 16) & 0xFF;
+				int green = (imagemArgb >> 8) & 0xFF;
+				int blue = imagemArgb & 0xFF;
+				System.out.println("x"+ x +"y"+ y +": "+ (red) +" - "+ (green) +" - "+ (blue));
+			}
+		}
+
 	}
 
 }
