@@ -534,6 +534,277 @@ public class Imagem {
 		return novaCor;
 	}
 
+	/*
+	 * Método para aplicar adição e subtração de imagem, se adicaoOuSubtracao for
+	 * igual a 1 aplica adição, se for igual a 2 aplica subtração. Foi feito sem
+	 * ponderação em cada imagem, mas se necessário a adição pode ter isso. Com a
+	 * ponderação uma imagem pode ter o peso maior que a outra e aparecer mais,
+	 * depois da adição feita
+	 */
+	public void adicaoESubtracaoDeImagem(BufferedImage imagem1, BufferedImage imagem2, String caminho,
+			int adicaoOuSubtracao) {
+		Scanner scan = new Scanner(System.in);
+		int largura = imagem1.getWidth();
+		int altura = imagem1.getHeight();
+		if (imagem1.getWidth() < imagem2.getWidth())
+			largura = imagem1.getWidth();
+		if (imagem2.getWidth() < imagem1.getWidth())
+			largura = imagem2.getWidth();
+		if (imagem1.getHeight() < imagem2.getHeight())
+			altura = imagem1.getHeight();
+		if (imagem2.getHeight() < imagem1.getHeight())
+			altura = imagem2.getHeight();
+		// cria uma BufferedImage com a menor largura e a menor altura entre as duas
+		// imagens
+		BufferedImage imagem = new BufferedImage(largura, altura, BufferedImage.TYPE_INT_RGB);
+		WritableImage imagemWI = new WritableImage(imagem.getWidth(), imagem.getHeight());
+		PixelWriter pw = imagemWI.getPixelWriter();
+		// analisa os pixels e nos laços abaixo preenche a nova imagem com filtro de
+		// adição
+		if (adicaoOuSubtracao == 1) {
+			for (int y = 0; y < imagem.getHeight(); y++) {
+				for (int x = 0; x < imagem.getWidth(); x++) {
+					int imagemArgb1 = imagem1.getRGB(x, y);
+					int alphaImg1 = (imagemArgb1 >> 24) & 0xFF;
+					int redImg1 = (imagemArgb1 >> 16) & 0xFF;
+					int greenImg1 = (imagemArgb1 >> 8) & 0xFF;
+					int blueImg1 = imagemArgb1 & 0xFF;
+					int imagemArgb2 = imagem2.getRGB(x, y);
+					int alphaImg2 = (imagemArgb2 >> 24) & 0xFF;
+					int redImg2 = (imagemArgb2 >> 16) & 0xFF;
+					int greenImg2 = (imagemArgb2 >> 8) & 0xFF;
+					int blueImg2 = imagemArgb2 & 0xFF;
+					int novoAlpha = alphaImg1 + alphaImg2;
+					if (novoAlpha > 255)
+						novoAlpha = 255;
+					int novoRed = redImg1 + redImg2;
+					if (novoRed > 255)
+						novoRed = 255;
+					int novoGreen = greenImg1 + greenImg2;
+					if (novoGreen > 255)
+						novoGreen = 255;
+					int novoBlue = blueImg1 + blueImg2;
+					if (novoBlue > 255)
+						novoBlue = 255;
+					Color novaCor = new Color(novoRed, novoGreen, novoBlue, novoAlpha);
+					pw.setArgb(x, y, novaCor.getRGB());
+				}
+			}
+		}
+		// analisa os pixels e nos laços abaixo preenche a nova imagem com filtro de
+		// subtração
+		if (adicaoOuSubtracao == 2) {
+			// primeiro escolhe se será a imagem 1 menos a 2, ou vice-versa
+			int imagemAnt = -1;
+			do {
+				try {
+					System.out.println(
+							"Você quer fazer a subtração imagem1 - imagem2 (1), ou a subtração imagem2 - imagem1 (2)?");
+					System.out.print("resposta: ");
+					imagemAnt = scan.nextInt();
+					scan.nextLine();
+					if ((imagemAnt < 1) || (imagemAnt > 2))
+						System.out.println("opção inválida");
+				} catch (InputMismatchException e) {
+					System.out.println("opção inválida");
+					scan.nextLine();
+					imagemAnt = -1;
+				}
+			} while ((imagemAnt < 1) || (imagemAnt > 2));
+			if (imagemAnt == 1) {
+				for (int y = 0; y < imagem.getHeight(); y++) {
+					for (int x = 0; x < imagem.getWidth(); x++) {
+						int imagemArgb1 = imagem1.getRGB(x, y);
+						int alphaImg1 = (imagemArgb1 >> 24) & 0xFF;
+						int redImg1 = (imagemArgb1 >> 16) & 0xFF;
+						int greenImg1 = (imagemArgb1 >> 8) & 0xFF;
+						int blueImg1 = imagemArgb1 & 0xFF;
+						int imagemArgb2 = imagem2.getRGB(x, y);
+						int alphaImg2 = (imagemArgb2 >> 24) & 0xFF;
+						int redImg2 = (imagemArgb2 >> 16) & 0xFF;
+						int greenImg2 = (imagemArgb2 >> 8) & 0xFF;
+						int blueImg2 = imagemArgb2 & 0xFF;
+						int novoAlpha = alphaImg1 - alphaImg2;
+						if (novoAlpha < 0)
+							novoAlpha = 0;
+						int novoRed = redImg1 - redImg2;
+						if (novoRed < 0)
+							novoRed = 0;
+						int novoGreen = greenImg1 - greenImg2;
+						if (novoGreen < 0)
+							novoGreen = 0;
+						int novoBlue = blueImg1 - blueImg2;
+						if (novoBlue < 0)
+							novoBlue = 0;
+						Color novaCor = new Color(novoRed, novoGreen, novoBlue, novoAlpha);
+						pw.setArgb(x, y, novaCor.getRGB());
+					}
+				}
+			}
+			if (imagemAnt == 2) {
+				for (int y = 0; y < imagem.getHeight(); y++) {
+					for (int x = 0; x < imagem.getWidth(); x++) {
+						int imagemArgb1 = imagem1.getRGB(x, y);
+						int alphaImg1 = (imagemArgb1 >> 24) & 0xFF;
+						int redImg1 = (imagemArgb1 >> 16) & 0xFF;
+						int greenImg1 = (imagemArgb1 >> 8) & 0xFF;
+						int blueImg1 = imagemArgb1 & 0xFF;
+						int imagemArgb2 = imagem2.getRGB(x, y);
+						int alphaImg2 = (imagemArgb2 >> 24) & 0xFF;
+						int redImg2 = (imagemArgb2 >> 16) & 0xFF;
+						int greenImg2 = (imagemArgb2 >> 8) & 0xFF;
+						int blueImg2 = imagemArgb2 & 0xFF;
+						int novoAlpha = alphaImg2 - alphaImg1;
+						if (novoAlpha < 0)
+							novoAlpha = 0;
+						int novoRed = redImg2 - redImg1;
+						if (novoRed < 0)
+							novoRed = 0;
+						int novoGreen = greenImg2 - greenImg1;
+						if (novoGreen < 0)
+							novoGreen = 0;
+						int novoBlue = blueImg2 - blueImg1;
+						if (novoBlue < 0)
+							novoBlue = 0;
+						Color novaCor = new Color(novoRed, novoGreen, novoBlue, novoAlpha);
+						pw.setArgb(x, y, novaCor.getRGB());
+					}
+				}
+			}
+		}
+		// descobre o tipo da imagem para poder salvar ela, pega a extensão da imagem1
+		String tipoImg = retornaExtensao(caminho);
+		// cria o caminho com o nome do arquivo
+		String nomeDoArquivo = "";
+		// em caso de adição
+		if (adicaoOuSubtracao == 1)
+			nomeDoArquivo = "imgs/filtros/novaimagemcomadicao.";
+		// em caso de subtração
+		if (adicaoOuSubtracao == 2)
+			nomeDoArquivo = "imgs/filtros/novaimagemcomsubtracao.";
+		nomeDoArquivo = nomeDoArquivo.concat(tipoImg);
+		// salva a nova imagem na pasta filtros
+		try {
+			ImageIO.write(SwingFXUtils.fromFXImage(imagemWI, null), tipoImg, new File(nomeDoArquivo));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println("A imagem gerada de duas outras imagens foi salva na pasta imgs/filtros");
+	}
+
+	// faz marcação em área passada pelo usuário
+	public void fazMarcacao(BufferedImage imagem, String caminho) {
+		System.out.println("Marcação de imagem");
+		Scanner scan = new Scanner(System.in);
+		WritableImage imagemWI = getWI(imagem);
+		PixelWriter pw = imagemWI.getPixelWriter();
+		int larguraA = -1;
+		int alturaA = -1;
+		int larguraB = -1;
+		int alturaB = -1;
+		do {
+			try {
+				System.out.println("Escolha a largura do ponto inicial");
+				System.out.println("(0 até " + (imagem.getWidth() - 1) + ")");
+				System.out.print("largura A: ");
+				larguraA = scan.nextInt();
+				scan.nextLine();
+				if ((larguraA < 0) || (larguraA > (imagem.getWidth() - 1)))
+					System.out.println("opção inválida");
+			} catch (InputMismatchException e) {
+				System.out.println("opção inválida");
+				scan.nextLine();
+				larguraA = -1;
+			}
+		} while ((larguraA < 0) || (larguraA > (imagem.getWidth() - 1)));
+		do {
+			try {
+				System.out.println("Escolha a altura do ponto inicial");
+				System.out.println("(0 até " + (imagem.getHeight() - 1) + ")");
+				System.out.print("altura A: ");
+				alturaA = scan.nextInt();
+				scan.nextLine();
+				if ((alturaA < 0) || (alturaA > (imagem.getHeight() - 1)))
+					System.out.println("opção inválida");
+			} catch (InputMismatchException e) {
+				System.out.println("opção inválida");
+				scan.nextLine();
+				alturaA = -1;
+			}
+		} while ((alturaA < 0) || (alturaA > (imagem.getHeight() - 1)));
+		do {
+			try {
+				System.out.println("Escolha a largura do ponto final");
+				System.out.println("(0 até " + (imagem.getWidth() - 1) + ")");
+				System.out.print("largura B: ");
+				larguraB = scan.nextInt();
+				scan.nextLine();
+				if ((larguraB < 0) || (larguraB > (imagem.getWidth() - 1)))
+					System.out.println("opção inválida");
+			} catch (InputMismatchException e) {
+				System.out.println("opção inválida");
+				scan.nextLine();
+				larguraB = -1;
+			}
+		} while ((larguraB < 0) || (larguraB > (imagem.getWidth() - 1)));
+		do {
+			try {
+				System.out.println("Escolha a altura do ponto final");
+				System.out.println("(0 até " + (imagem.getHeight() - 1) + ")");
+				System.out.print("altura B: ");
+				alturaB = scan.nextInt();
+				scan.nextLine();
+				if ((alturaB < 0) || (alturaB > (imagem.getHeight() - 1)))
+					System.out.println("opção inválida");
+			} catch (InputMismatchException e) {
+				System.out.println("opção inválida");
+				scan.nextLine();
+				alturaB = -1;
+			}
+		} while ((alturaB < 0) || (alturaB > (imagem.getHeight() - 1)));
+		System.out.println("largura/altura");
+		System.out.println("Ponto inicial: " + (larguraA) + "/" + (alturaA));
+		System.out.println("Ponto final: " + (larguraB) + "/" + (alturaB));
+		// cuida para que a largura inicial e a altura inicial sempre sejam as menores
+		// feito para não dar problema na hora de percorrer os laços
+		int aux;
+		if (larguraB < larguraA) {
+			aux = larguraB;
+			larguraB = larguraA;
+			larguraA = aux;
+		}
+		if (alturaB < alturaA) {
+			aux = alturaB;
+			alturaB = alturaA;
+			alturaA = aux;
+		}
+		Color novaCor = new Color(0, 0, 0, 0);
+		for (int y = alturaA; y <= alturaB; y++) {
+			for (int x = larguraA; x <= larguraB; x++) {
+				if (x == larguraA)
+					pw.setArgb(x, y, novaCor.getRGB());
+				if ((y == alturaA) && (x != larguraA) && (x != larguraB))
+					pw.setArgb(x, y, novaCor.getRGB());
+				if ((y == alturaB) && (x != larguraA) && (x != larguraB))
+					pw.setArgb(x, y, novaCor.getRGB());
+				if (x == larguraB)
+					pw.setArgb(x, y, novaCor.getRGB());
+			}
+		}
+		// descobre o tipo da imagem para poder salvar ela
+		String tipoImg = retornaExtensao(caminho);
+		// cria o caminho com o nome do arquivo
+		String nomeDoArquivo = "imgs/filtros/novaimagemcommarcacao.";
+		nomeDoArquivo = nomeDoArquivo.concat(tipoImg);
+		// salva a nova imagem na pasta filtros
+		try {
+			ImageIO.write(SwingFXUtils.fromFXImage(imagemWI, null), tipoImg, new File(nomeDoArquivo));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println("A imagem com marcação foi salva na pasta imgs/filtros");
+	}
+
 	// passa a imagem em buffer para uma WritableImage
 	public WritableImage getWI(BufferedImage imagemBI) {
 		WritableImage imagemWI = null;
@@ -645,12 +916,12 @@ public class Imagem {
 		}
 		for (int x = larguraA; x <= larguraB; x++) {
 			for (int y = alturaA; y <= alturaB; y++) {
-				int imagemArgb=imagem.getRGB(x, y);
+				int imagemArgb = imagem.getRGB(x, y);
 				int alpha = (imagemArgb >> 24) & 0xFF;
 				int red = (imagemArgb >> 16) & 0xFF;
 				int green = (imagemArgb >> 8) & 0xFF;
 				int blue = imagemArgb & 0xFF;
-				System.out.println("x"+ x +"y"+ y +": "+ (red) +" - "+ (green) +" - "+ (blue));
+				System.out.println("x" + x + "y" + y + ": " + (red) + " - " + (green) + " - " + (blue));
 			}
 		}
 

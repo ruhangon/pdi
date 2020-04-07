@@ -41,9 +41,11 @@ public class Main {
 		Color infosImg1;
 		Color infosImg2;
 		int opImg = -1;
+		int adicaoOuSubtracao = -1; // usado na adição ou subtração de imagens
 		String menu = "Menu \n" + "1. Escolhe imagem 1 \n" + "2. Escolhe imagem 2 \n"
 				+ "3. Descobre RGB em uma coordenada de uma imagem \n" + "4. Filtros de cinza \n"
 				+ "5. Filtro de limiarização \n" + "6. Filtro de negativa \n" + "7. Filtro de eliminação de ruídos \n"
+				+ "8. Adição de imagem \n" + "9. Subtração de imagem \n" + "10. Faz marcação em imagem \n"
 				+ "20. Mostra pixels de uma área passada \n" + "0. Sai do programa";
 
 		int op = -1;
@@ -322,6 +324,27 @@ public class Main {
 						imagem.filtroDeEliminacaoDeRuidos(minhaImagem1, caminhoImg1);
 					if (opImg == 2)
 						imagem.filtroDeEliminacaoDeRuidos(minhaImagem2, caminhoImg2);
+					break;
+
+				case 8:
+					System.out.println("Imagem 1 + Imagem 2");
+					adicaoOuSubtracao = 1;
+					imagem.adicaoESubtracaoDeImagem(minhaImagem1, minhaImagem2, caminhoImg1, adicaoOuSubtracao);
+					break;
+
+				case 9:
+					System.out.println("Imagem 1 - Imagem 2 ou Imagem 2 - Imagem 1");
+					adicaoOuSubtracao = 2;
+					imagem.adicaoESubtracaoDeImagem(minhaImagem1, minhaImagem2, caminhoImg1, adicaoOuSubtracao);
+					break;
+
+				case 10:
+					opImg = -1;
+					opImg = escolheImagem(scan);
+					if (opImg == 1)
+						imagem.fazMarcacao(minhaImagem1, caminhoImg1);
+					if (opImg == 2)
+						imagem.fazMarcacao(minhaImagem2, caminhoImg2);
 					break;
 
 				case 20:
