@@ -594,81 +594,33 @@ public class Imagem {
 		// analisa os pixels e nos laços abaixo preenche a nova imagem com filtro de
 		// subtração
 		if (adicaoOuSubtracao == 2) {
-			// primeiro escolhe se será a imagem 1 menos a 2, ou vice-versa
-			int imagemAnt = -1;
-			do {
-				try {
-					System.out.println(
-							"Você quer fazer a subtração imagem1 - imagem2 (1), ou a subtração imagem2 - imagem1 (2)?");
-					System.out.print("resposta: ");
-					imagemAnt = scan.nextInt();
-					scan.nextLine();
-					if ((imagemAnt < 1) || (imagemAnt > 2))
-						System.out.println("opção inválida");
-				} catch (InputMismatchException e) {
-					System.out.println("opção inválida");
-					scan.nextLine();
-					imagemAnt = -1;
-				}
-			} while ((imagemAnt < 1) || (imagemAnt > 2));
-			if (imagemAnt == 1) {
-				for (int y = 0; y < imagem.getHeight(); y++) {
-					for (int x = 0; x < imagem.getWidth(); x++) {
-						int imagemArgb1 = imagem1.getRGB(x, y);
-						int alphaImg1 = (imagemArgb1 >> 24) & 0xFF;
-						int redImg1 = (imagemArgb1 >> 16) & 0xFF;
-						int greenImg1 = (imagemArgb1 >> 8) & 0xFF;
-						int blueImg1 = imagemArgb1 & 0xFF;
-						int imagemArgb2 = imagem2.getRGB(x, y);
-						int alphaImg2 = (imagemArgb2 >> 24) & 0xFF;
-						int redImg2 = (imagemArgb2 >> 16) & 0xFF;
-						int greenImg2 = (imagemArgb2 >> 8) & 0xFF;
-						int blueImg2 = imagemArgb2 & 0xFF;
-						int novoAlpha = alphaImg1 - alphaImg2;
-						if (novoAlpha < 0)
-							novoAlpha = 0;
-						int novoRed = redImg1 - redImg2;
-						if (novoRed < 0)
-							novoRed = 0;
-						int novoGreen = greenImg1 - greenImg2;
-						if (novoGreen < 0)
-							novoGreen = 0;
-						int novoBlue = blueImg1 - blueImg2;
-						if (novoBlue < 0)
-							novoBlue = 0;
-						Color novaCor = new Color(novoRed, novoGreen, novoBlue, novoAlpha);
-						pw.setArgb(x, y, novaCor.getRGB());
-					}
-				}
-			}
-			if (imagemAnt == 2) {
-				for (int y = 0; y < imagem.getHeight(); y++) {
-					for (int x = 0; x < imagem.getWidth(); x++) {
-						int imagemArgb1 = imagem1.getRGB(x, y);
-						int alphaImg1 = (imagemArgb1 >> 24) & 0xFF;
-						int redImg1 = (imagemArgb1 >> 16) & 0xFF;
-						int greenImg1 = (imagemArgb1 >> 8) & 0xFF;
-						int blueImg1 = imagemArgb1 & 0xFF;
-						int imagemArgb2 = imagem2.getRGB(x, y);
-						int alphaImg2 = (imagemArgb2 >> 24) & 0xFF;
-						int redImg2 = (imagemArgb2 >> 16) & 0xFF;
-						int greenImg2 = (imagemArgb2 >> 8) & 0xFF;
-						int blueImg2 = imagemArgb2 & 0xFF;
-						int novoAlpha = alphaImg2 - alphaImg1;
-						if (novoAlpha < 0)
-							novoAlpha = 0;
-						int novoRed = redImg2 - redImg1;
-						if (novoRed < 0)
-							novoRed = 0;
-						int novoGreen = greenImg2 - greenImg1;
-						if (novoGreen < 0)
-							novoGreen = 0;
-						int novoBlue = blueImg2 - blueImg1;
-						if (novoBlue < 0)
-							novoBlue = 0;
-						Color novaCor = new Color(novoRed, novoGreen, novoBlue, novoAlpha);
-						pw.setArgb(x, y, novaCor.getRGB());
-					}
+			// programa irá fazer a subtração imagem 1 menos imagem 2
+			for (int y = 0; y < imagem.getHeight(); y++) {
+				for (int x = 0; x < imagem.getWidth(); x++) {
+					int imagemArgb1 = imagem1.getRGB(x, y);
+					int alphaImg1 = (imagemArgb1 >> 24) & 0xFF;
+					int redImg1 = (imagemArgb1 >> 16) & 0xFF;
+					int greenImg1 = (imagemArgb1 >> 8) & 0xFF;
+					int blueImg1 = imagemArgb1 & 0xFF;
+					int imagemArgb2 = imagem2.getRGB(x, y);
+					int alphaImg2 = (imagemArgb2 >> 24) & 0xFF;
+					int redImg2 = (imagemArgb2 >> 16) & 0xFF;
+					int greenImg2 = (imagemArgb2 >> 8) & 0xFF;
+					int blueImg2 = imagemArgb2 & 0xFF;
+					int novoAlpha = alphaImg1 - alphaImg2;
+					if (novoAlpha < 0)
+						novoAlpha = 0;
+					int novoRed = redImg1 - redImg2;
+					if (novoRed < 0)
+						novoRed = 0;
+					int novoGreen = greenImg1 - greenImg2;
+					if (novoGreen < 0)
+						novoGreen = 0;
+					int novoBlue = blueImg1 - blueImg2;
+					if (novoBlue < 0)
+						novoBlue = 0;
+					Color novaCor = new Color(novoRed, novoGreen, novoBlue, novoAlpha);
+					pw.setArgb(x, y, novaCor.getRGB());
 				}
 			}
 		}
@@ -805,6 +757,54 @@ public class Imagem {
 		System.out.println("A imagem com marcação foi salva na pasta imgs/filtros");
 	}
 
+	/*
+	 * retorna os valores de cada canal em suas próprias arraylists. Se op for igual
+	 * a 1 retorna os valores do red, se for igual a 2 retorna os do green e por fim
+	 * se for igual a 3 retorna os do blue
+	 */
+	public ArrayList<Integer> retornaValoresRgb(BufferedImage imagem, int op) {
+		ArrayList<Integer> rgb = new ArrayList<Integer>();
+		WritableImage imagemWI = getWI(imagem);
+		PixelReader pr = imagemWI.getPixelReader();
+		// se op for igual a 1 preenche a arraylist com valores do red
+		if (op == 1) {
+			for (int x = 0; x < imagem.getWidth(); x++) {
+				for (int y = 0; y < imagem.getHeight(); y++) {
+					int imagemArgb = pr.getArgb(x, y);
+					int red = (imagemArgb >> 16) & 0xFF;
+					rgb.add(red);
+				}
+			}
+			System.out.println("ArrayList do canal vermelho foi preenchida com " + (rgb.size()) + " valores");
+			return rgb;
+		}
+		// se op for igual a 2 preenche a arraylist com valores do green
+		if (op == 2) {
+			for (int x = 0; x < imagem.getWidth(); x++) {
+				for (int y = 0; y < imagem.getHeight(); y++) {
+					int imagemArgb = pr.getArgb(x, y);
+					int green = (imagemArgb >> 8) & 0xFF;
+					rgb.add(green);
+				}
+			}
+			System.out.println("ArrayList do canal verde foi preenchida com " + (rgb.size()) + " valores");
+			return rgb;
+		}
+		// se op for igual a 3 preenche a arraylist com valores do blue
+		if (op == 3) {
+			for (int x = 0; x < imagem.getWidth(); x++) {
+				for (int y = 0; y < imagem.getHeight(); y++) {
+					int imagemArgb = pr.getArgb(x, y);
+					int blue = imagemArgb & 0xFF;
+					rgb.add(blue);
+				}
+			}
+			System.out.println("ArrayList do canal azul foi preenchida com " + (rgb.size()) + " valores");
+			return rgb;
+		}
+		return rgb;
+	}
+
 	// passa a imagem em buffer para uma WritableImage
 	public WritableImage getWI(BufferedImage imagemBI) {
 		WritableImage imagemWI = null;
@@ -924,7 +924,6 @@ public class Imagem {
 				System.out.println("x" + x + "y" + y + ": " + (red) + " - " + (green) + " - " + (blue));
 			}
 		}
-
 	}
 
 }

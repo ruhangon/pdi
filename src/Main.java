@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -42,11 +43,16 @@ public class Main {
 		Color infosImg2;
 		int opImg = -1;
 		int adicaoOuSubtracao = -1; // usado na adição ou subtração de imagens
+		int qualCanal; // usado no istograma para escolher qual canal preencher
+		ArrayList<Integer> canalRed; // usado para o istograma
+		ArrayList<Integer> canalGreen; // usado para o istograma
+		ArrayList<Integer> canalBlue; // usado para o istograma
 		String menu = "Menu \n" + "1. Escolhe imagem 1 \n" + "2. Escolhe imagem 2 \n"
 				+ "3. Descobre RGB em uma coordenada de uma imagem \n" + "4. Filtros de cinza \n"
 				+ "5. Filtro de limiarização \n" + "6. Filtro de negativa \n" + "7. Filtro de eliminação de ruídos \n"
 				+ "8. Adição de imagem \n" + "9. Subtração de imagem \n" + "10. Faz marcação em imagem \n"
-				+ "20. Mostra pixels de uma área passada \n" + "0. Sai do programa";
+				+ "11. Preenche canais para istograma \n" + "20. Mostra pixels de uma área passada \n"
+				+ "0. Sai do programa";
 
 		int op = -1;
 
@@ -333,7 +339,7 @@ public class Main {
 					break;
 
 				case 9:
-					System.out.println("Imagem 1 - Imagem 2 ou Imagem 2 - Imagem 1");
+					System.out.println("Imagem 1 - Imagem 2");
 					adicaoOuSubtracao = 2;
 					imagem.adicaoESubtracaoDeImagem(minhaImagem1, minhaImagem2, caminhoImg1, adicaoOuSubtracao);
 					break;
@@ -345,6 +351,44 @@ public class Main {
 						imagem.fazMarcacao(minhaImagem1, caminhoImg1);
 					if (opImg == 2)
 						imagem.fazMarcacao(minhaImagem2, caminhoImg2);
+					break;
+
+				case 11:
+					opImg = -1;
+					opImg = escolheImagem(scan);
+					canalRed = new ArrayList<Integer>();
+					canalGreen = new ArrayList<Integer>();
+					canalBlue = new ArrayList<Integer>();
+					if (opImg == 1) {
+						// verifica se arraylists já tem algo, se tiver limpa
+						if (canalRed.isEmpty() == false)
+							canalRed.clear();
+						if (canalGreen.isEmpty() == false)
+							canalGreen.clear();
+						if (canalBlue.isEmpty() == false)
+							canalBlue.clear();
+						qualCanal = 1; // para preencher o red
+						canalRed = imagem.retornaValoresRgb(minhaImagem1, qualCanal);
+						qualCanal = 2; // para preencher o green
+						canalGreen = imagem.retornaValoresRgb(minhaImagem1, qualCanal);
+						qualCanal = 3; // para preencher o blue
+						canalBlue = imagem.retornaValoresRgb(minhaImagem1, qualCanal);
+					}
+					if (opImg == 2) {
+						// verifica se arraylists já tem algo, se tiver limpa
+						if (canalRed.isEmpty() == false)
+							canalRed.clear();
+						if (canalGreen.isEmpty() == false)
+							canalGreen.clear();
+						if (canalBlue.isEmpty() == false)
+							canalBlue.clear();
+						qualCanal = 1; // para preencher o red
+						canalRed = imagem.retornaValoresRgb(minhaImagem2, qualCanal);
+						qualCanal = 2; // para preencher o green
+						canalGreen = imagem.retornaValoresRgb(minhaImagem2, qualCanal);
+						qualCanal = 3; // para preencher o blue
+						canalBlue = imagem.retornaValoresRgb(minhaImagem2, qualCanal);
+					}
 					break;
 
 				case 20:
