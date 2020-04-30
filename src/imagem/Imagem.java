@@ -619,6 +619,8 @@ public class Imagem {
 					int novoBlue = blueImg1 - blueImg2;
 					if (novoBlue < 0)
 						novoBlue = 0;
+					if ((x == 1) && (y == 1))
+						System.out.println(novoRed + " - " + novoGreen + " - " + novoBlue + " - " + novoAlpha);
 					Color novaCor = new Color(novoRed, novoGreen, novoBlue, novoAlpha);
 					pw.setArgb(x, y, novaCor.getRGB());
 				}
@@ -757,52 +759,167 @@ public class Imagem {
 		System.out.println("A imagem com marcação foi salva na pasta imgs/filtros");
 	}
 
-	/*
-	 * retorna os valores de cada canal em suas próprias arraylists. Se op for igual
-	 * a 1 retorna os valores do red, se for igual a 2 retorna os do green e por fim
-	 * se for igual a 3 retorna os do blue
-	 */
-	public ArrayList<Integer> retornaValoresRgb(BufferedImage imagem, int op) {
-		ArrayList<Integer> rgb = new ArrayList<Integer>();
+	// método para a realização da equalização
+	public void realizaEqualizacaoDeImagem(BufferedImage imagem, String caminho) {
+		Scanner scan = new Scanner(System.in);
 		WritableImage imagemWI = getWI(imagem);
 		PixelReader pr = imagemWI.getPixelReader();
-		// se op for igual a 1 preenche a arraylist com valores do red
-		if (op == 1) {
+		PixelWriter pw = imagemWI.getPixelWriter();
+		// retorna valores para histograma
+		int[] histRed = retornaHistograma(imagem, 1);
+		int[] histGreen = retornaHistograma(imagem, 2);
+		int[] histBlue = retornaHistograma(imagem, 3);
+		// retorna valores para histograma acumulado
+		int[] histAcumRed = retornaHistogramaAcumulado(histRed);
+		int[] histAcumGreen = retornaHistogramaAcumulado(histGreen);
+		int[] histAcumBlue = retornaHistogramaAcumulado(histBlue);
+		// retorna tons válidos de cada canal
+		int qtTonsRed = qtTons(histRed);
+		int qtTonsGreen = qtTons(histGreen);
+		int qtTonsBlue = qtTons(histBlue);
+		// encontra pontos mínimos
+		double minR = pontoMin(histRed);
+		double minG = pontoMin(histGreen);
+		double minB = pontoMin(histBlue);
+
+		boolean todos = false;
+		String resposta = "N";
+		do {
+			System.out.println("Você deseja considerar todos os pixels para a equalização? (s/n)");
+			System.out.print("resposta: ");
+			resposta = scan.nextLine();
+			if ((!resposta.equalsIgnoreCase("S")) && (!resposta.equalsIgnoreCase("N")))
+				System.out.println("opção inválida");
+		} while ((!resposta.equalsIgnoreCase("S")) && (!resposta.equalsIgnoreCase("N")));
+		if (resposta.equalsIgnoreCase("S"))
+			todos = true;
+		if (resposta.equalsIgnoreCase("N"))
+			todos = false;
+
+		if (todos == true) {
+			qtTonsRed = 255;
+			qtTonsGreen = 255;
+			qtTonsBlue = 255;
+			minR = 0;
+			minG = 0;
+			minB = 0;
+		}
+
+		// usado double assim como em outros trechos pois o int pode deixar de
+		// considerar algumas casas decimais em algumas horas importantes
+		double n = imagem.getWidth() * imagem.getHeight();
+
+		for (int y = 0; y < imagem.getHeight(); y++) {
 			for (int x = 0; x < imagem.getWidth(); x++) {
-				for (int y = 0; y < imagem.getHeight(); y++) {
+				int corAntiga = pr.getArgb(x, y);
+				int alpha = (corAntiga >> 24) & 0xFF;
+				int red = (corAntiga >> 16) & 0xFF;
+				// int acR = histAcumRed[red];
+				double acR = histAcumRed[red];
+				int green = (corAntiga >> 8) & 0xFF;
+				// int acG = histAcumGreen[green];
+				double acG = histAcumGreen[green];
+				int blue = corAntiga & 0xFF;
+				// int acB = histAcumBlue[blue];
+				double acB = histAcumBlue[blue];
+
+				// abaixo calcula novos valores para o canal usando a fórmula
+				double pixelRed = ((qtTonsRed - 1) / n) * acR;
+				double pixelGreen = ((qtTonsGreen - 1) / n) * acG;
+				double pixelBlue = ((qtTonsBlue - 1) / n) * acB;
+
+				double corR = minR + pixelRed;
+				int corRed = (int) (corR);
+				double corG = minG + pixelGreen;
+				int corGreen = (int) (corG);
+				double corB = minB + pixelBlue;
+				int corBlue = (int) (corB);
+
+				Color novaCor = new Color(corRed, corGreen, corBlue, alpha);
+				pw.setArgb(x, y, novaCor.getRGB());
+			}
+		}
+		// descobre o tipo da imagem para poder salvar ela
+		String tipoImg = retornaExtensao(caminho);
+		// cria o caminho com o nome do arquivo
+		String nomeDoArquivo = "imgs/filtros/novaimagemequalizada.";
+		nomeDoArquivo = nomeDoArquivo.concat(tipoImg);
+		// salva a nova imagem na pasta filtros
+		try {
+			ImageIO.write(SwingFXUtils.fromFXImage(imagemWI, null), tipoImg, new File(nomeDoArquivo));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println("A imagem equalizada foi salva na pasta imgs/filtros");
+	}
+
+	// retorna valores para histograma
+	public int[] retornaHistograma(BufferedImage imagem, int op) {
+		int[] rgb = new int[256];
+		WritableImage imagemWI = getWI(imagem);
+		PixelReader pr = imagemWI.getPixelReader();
+		// se op for igual a 1 preenche o vetor com valores do red
+		if (op == 1) {
+			for (int y = 0; y < imagem.getHeight(); y++) {
+				for (int x = 0; x < imagem.getWidth(); x++) {
 					int imagemArgb = pr.getArgb(x, y);
 					int red = (imagemArgb >> 16) & 0xFF;
-					rgb.add(red);
+					rgb[red]++;
 				}
 			}
-			System.out.println("ArrayList do canal vermelho foi preenchida com " + (rgb.size()) + " valores");
-			return rgb;
 		}
-		// se op for igual a 2 preenche a arraylist com valores do green
+		// se op for igual a 2 preenche o vetor com valores do green
 		if (op == 2) {
-			for (int x = 0; x < imagem.getWidth(); x++) {
-				for (int y = 0; y < imagem.getHeight(); y++) {
+			for (int y = 0; y < imagem.getHeight(); y++) {
+				for (int x = 0; x < imagem.getWidth(); x++) {
 					int imagemArgb = pr.getArgb(x, y);
 					int green = (imagemArgb >> 8) & 0xFF;
-					rgb.add(green);
+					rgb[green]++;
 				}
 			}
-			System.out.println("ArrayList do canal verde foi preenchida com " + (rgb.size()) + " valores");
-			return rgb;
 		}
-		// se op for igual a 3 preenche a arraylist com valores do blue
+		// se op for igual a 3 preenche o vetor com valores do blue
 		if (op == 3) {
-			for (int x = 0; x < imagem.getWidth(); x++) {
-				for (int y = 0; y < imagem.getHeight(); y++) {
+			for (int y = 0; y < imagem.getHeight(); y++) {
+				for (int x = 0; x < imagem.getWidth(); x++) {
 					int imagemArgb = pr.getArgb(x, y);
 					int blue = imagemArgb & 0xFF;
-					rgb.add(blue);
+					rgb[blue]++;
 				}
 			}
-			System.out.println("ArrayList do canal azul foi preenchida com " + (rgb.size()) + " valores");
-			return rgb;
 		}
 		return rgb;
+	}
+
+	// retorna os valores para o histograma acumulado
+	public int[] retornaHistogramaAcumulado(int[] hist) {
+		int[] rgb = new int[hist.length];
+		int vl = hist[0];
+		for (int i = 0; i < hist.length - 1; i++) {
+			rgb[i] = vl;
+			vl += hist[i + 1];
+		}
+		return rgb;
+	}
+
+	// MÉTODO QUE CONTA TONS VÁLIDOS
+	public int qtTons(int[] hist) {
+		int qtZeros = 0;
+		for (int i : hist) {
+			if (i == 0)
+				qtZeros++;
+		}
+		return 255 - qtZeros;
+	}
+
+	// MÉTODO QUE VÊ AONDE INICIA NO HISTOGRAMA O PONTO MÍNIMO
+	public int pontoMin(int[] hist) {
+		for (int i = 0; i < hist.length; i++) {
+			if (hist[i] > 0) {
+				return i;
+			}
+		}
+		return 0;
 	}
 
 	// passa a imagem em buffer para uma WritableImage
@@ -924,6 +1041,81 @@ public class Imagem {
 				System.out.println("x" + x + "y" + y + ": " + (red) + " - " + (green) + " - " + (blue));
 			}
 		}
+	}
+
+	public void mostraInformacoesParaHistograma(BufferedImage imagem) {
+		WritableImage imagemWI = getWI(imagem);
+		PixelReader pr = imagemWI.getPixelReader();
+		Scanner scan = new Scanner(System.in);
+		int larguraImg = imagem.getWidth();
+		int alturaImg = imagem.getHeight();
+		int posX = -1;
+		int posY = -1;
+		do {
+			try {
+				System.out.println("Digite a posição do x (largura)");
+				System.out.println("(0 até " + (larguraImg - 1) + ")");
+				System.out.print("x: ");
+				posX = scan.nextInt();
+				scan.nextLine();
+				if ((posX < 0) || (posX > (larguraImg - 1)))
+					System.out.println("opção inválida");
+			} catch (InputMismatchException e) {
+				System.out.println("opção inválida");
+				posX = -1;
+				scan.nextLine();
+			}
+		} while ((posX < 0) || (posX > (larguraImg - 1)));
+		do {
+			try {
+				System.out.println("Digite a posição do y (altura)");
+				System.out.println("(0 até " + (alturaImg - 1) + ")");
+				System.out.print("y: ");
+				posY = scan.nextInt();
+				scan.nextLine();
+				if ((posY < 0) || (posY > (alturaImg - 1)))
+					System.out.println("opção inválida");
+			} catch (InputMismatchException e) {
+				System.out.println("opção inválida");
+				posY = -1;
+				scan.nextLine();
+			}
+		} while ((posY < 0) || (posY > (alturaImg - 1)));
+		// retorna valores para histograma, que serão usados
+		int[] histRed = retornaHistograma(imagem, 1);
+		int[] histGreen = retornaHistograma(imagem, 2);
+		int[] histBlue = retornaHistograma(imagem, 3);
+		// retorna valores para histograma acumulado
+		int[] histAcumRed = retornaHistogramaAcumulado(histRed);
+		int[] histAcumGreen = retornaHistogramaAcumulado(histGreen);
+		int[] histAcumBlue = retornaHistogramaAcumulado(histBlue);
+		// abaixo pega red, green e blue para descobrir valor pedido do histograma
+		// acumulado
+		int imagemArgb = pr.getArgb(posX, posY);
+		int red = (imagemArgb >> 16) & 0xFF;
+		int green = (imagemArgb >> 8) & 0xFF;
+		int blue = imagemArgb & 0xFF;
+		// agora passa as informações do red
+		System.out.println("Red: ");
+		System.out.println("l: " + qtTons(histRed));
+		System.out.println("n: " + (larguraImg * alturaImg));
+		System.out.println("histograma acumulado do red: " + (histAcumRed[red]));
+		System.out.println("ponto mínimo: " + pontoMin(histRed));
+		System.out.println();
+		// agora passa as informações do green
+		System.out.println("Green: ");
+		System.out.println("l: " + qtTons(histGreen));
+		System.out.println("n: " + (larguraImg * alturaImg));
+		System.out.println("histograma acumulado do green: " + (histAcumGreen[green]));
+		System.out.println("ponto mínimo: " + pontoMin(histGreen));
+		System.out.println();
+		// agora passa as informações do blue
+		System.out.println("Blue: ");
+		System.out.println("l: " + qtTons(histBlue));
+		System.out.println("n: " + (larguraImg * alturaImg));
+		System.out.println("histograma acumulado do blue: " + (histAcumBlue[blue]));
+		System.out.println("ponto mínimo: " + pontoMin(histBlue));
+		System.out.println();
 	}
 
 }
