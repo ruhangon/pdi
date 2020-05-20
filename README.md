@@ -1,0 +1,1 @@
+Repositório usado para os estudos de processamento digital de imagens. Foi estudado limiarização, negativa, eliminação de ruídos, adição de imagens, subtração de imagens e equalização de histograma. Esse repositório tem um projeto que não usa open CV.
